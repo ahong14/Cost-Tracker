@@ -2,6 +2,8 @@ package com.cost_tracker.cost_tracker.models;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table
 public class User {
@@ -26,8 +28,19 @@ public class User {
     private String email;
     private String password;
 
+    @Column(name = "date_created")
+    private LocalDate dateCreated;
+
     public User() {
 
+    }
+
+    public LocalDate getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(LocalDate dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
     public User(Integer id, String firstName, String lastName, String email, String password) {
