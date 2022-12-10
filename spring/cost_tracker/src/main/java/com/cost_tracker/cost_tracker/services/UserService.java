@@ -1,20 +1,26 @@
 package com.cost_tracker.cost_tracker.services;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.cost_tracker.cost_tracker.models.User;
 import com.cost_tracker.cost_tracker.repositories.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
 public class UserService {
     private static final Logger logger = LogManager.getLogger(UserService.class);
     private final UserRepository userRepository;
+
+    @Value("${jwt_secret}")
+    private String jwt_secret;
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -41,20 +47,29 @@ public class UserService {
     }
 
 
-//    public Optional<String> loginUser(String email, String password) {
-//        Optional<User> foundUser = userRepository.findUserByEmail(email);
-//        if (foundUser.isEmpty()) {
-//            logger.error("User email not found");
-//            return null;
-//        }
-//
-//        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-//        String hashedPassword = passwordEncoder.encode(password);
-//        User getFoundUser = foundUser.get();
-//
-//        if (getFoundUser.getPassword() != hashedPassword) {
-//            logger.error("Passwords do not match");
-//            return null;
-//        }
-//    }
+    public Optional<String> loginUser(String email, String password) {
+        Optional<User> foundUser = userRepository.findUserByEmail(email);
+        if (foundUser.isEmpty()) {
+            logger.error("User email not found");
+            return null;
+        }
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(password);
+        User getFoundUser = foundUser.get();
+
+        if (!passwordEncoder.matches(password, hashedPassword)) {
+            logger.error("Passwords do not match");
+            return null;
+        }
+
+        return Optional.ofNullable(JWT.create().withSubject("User")
+                .withClaim("Email", email)
+                .withClaim("id", getFoundUser.getId())
+                .withClaim("FirstName", getFoundUser.getFirst_name())
+                .withClaim("LastName", getFoundUser.getLast_name())
+                .withIssuedAt(new Date())
+                .withIssuer("Test Issuer")
+                .sign(Algorithm.HMAC256(jwt_secret)));
+    }
 }
