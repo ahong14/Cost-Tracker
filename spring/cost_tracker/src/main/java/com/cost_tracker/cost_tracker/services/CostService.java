@@ -8,6 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +24,11 @@ public class CostService {
         this.costRepository = costRepository;
     }
 
-    public Optional<List<Cost>> getUserCosts(Integer userId) {
+    public Optional<List<Cost>> getUserCosts(Integer userId, int offset, int limit) {
         try {
-            Optional<List<Cost>> userCosts = costRepository.findCostsByUserId(userId);
+            // TODO fix pagination and limit
+            int page = offset / limit;
+            Optional<List<Cost>> userCosts = costRepository.findCostsByUserIdOrderByDateDesc(userId);
             return userCosts;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -33,6 +38,9 @@ public class CostService {
 
     public boolean createCost(Cost newCost) {
         try {
+            // convert date time to unix timestamp
+            LocalDate costDate = newCost.getDate();
+            newCost.setDate_unix(costDate.toEpochSecond(LocalTime.NOON, ZoneOffset.MIN));
             costRepository.save(newCost);
             return true;
         } catch (Exception e) {

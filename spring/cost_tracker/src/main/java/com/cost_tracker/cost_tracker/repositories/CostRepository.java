@@ -7,5 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CostRepository extends JpaRepository<Cost, Integer> {
-    Optional<List<Cost>> findCostsByUserId(Integer userId);
+    // get costs by user id ordered by date desc
+    Optional<List<Cost>> findCostsByUserIdOrderByDateDesc(Integer userId);
 }

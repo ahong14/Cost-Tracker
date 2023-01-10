@@ -15,6 +15,8 @@ import java.util.Optional;
 public class CostTrackerController {
     private final CostService costService;
 
+    private final int MAX_RESULTS = 50;
+
     @Autowired
     public CostTrackerController(CostService costService) {
         this.costService = costService;
@@ -22,7 +24,7 @@ public class CostTrackerController {
 
     @GetMapping()
     public ResponseEntity getUserCosts(@RequestParam Integer userId) {
-        Optional<List<Cost>> userCosts = costService.getUserCosts(userId);
+        Optional<List<Cost>> userCosts = costService.getUserCosts(userId, 0, MAX_RESULTS);
         if (userCosts == null) {
             return new ResponseEntity<>("Failed to get user costs.", HttpStatus.BAD_REQUEST);
         }

@@ -8,19 +8,14 @@ import java.time.LocalDate;
 @Table
 public class Cost {
     @Id
-    @SequenceGenerator(
-            name = "cost_sequence",
-            sequenceName = "cost_sequence",
-            allocationSize = 1
-    )
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "cost_sequence"
+            strategy = GenerationType.IDENTITY
     )
     private Integer id;
+
     private Double amount;
     private LocalDate date;
-    private Integer date_unix;
+    private long date_unix;
     private String title;
     private Integer quantity;
     @Column(name = "user_id")
@@ -28,7 +23,7 @@ public class Cost {
 
 
 
-    public Cost(Double amount, LocalDate date, Integer date_unix, String title, Integer quantity, Integer userId) {
+    public Cost(Double amount, LocalDate date, long date_unix, String title, Integer quantity, Integer userId) {
         this.amount = amount;
         this.date = date;
         this.date_unix = date_unix;
@@ -41,7 +36,7 @@ public class Cost {
 
     }
 
-    public Cost(Integer id, Double amount, LocalDate date, Integer date_unix, String title, Integer quantity, Integer userId) {
+    public Cost(Integer id, Double amount, LocalDate date, long date_unix, String title, Integer quantity, Integer userId) {
         this.id = id;
         this.amount = amount;
         this.date = date;
@@ -75,11 +70,11 @@ public class Cost {
         this.date = date;
     }
 
-    public Integer getDate_unix() {
+    public long getDate_unix() {
         return date_unix;
     }
 
-    public void setDate_unix(Integer date_unix) {
+    public void setDate_unix(long date_unix) {
         this.date_unix = date_unix;
     }
 
