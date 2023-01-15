@@ -1,6 +1,6 @@
 const typeDefs = `#graphql
     type Query {
-        getCosts(userId: ID!): [Costs]
+        getCosts(userId: Int!): [Costs]
     }
 
     type Costs {
@@ -11,6 +11,17 @@ const typeDefs = `#graphql
         quantity: Int,
         title: String,
         user_id: Int
+    }
+
+    type Mutation {
+        createCost(
+            amount: Float
+            date: String
+            date_unix: Float
+            quantity: Int
+            title: String
+            user_id: Int
+        ): String
     }
 `;
 export default typeDefs;
