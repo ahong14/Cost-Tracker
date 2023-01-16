@@ -13,6 +13,31 @@ const typeDefs = `#graphql
         user_id: Int
     }
 
+    type Query {
+        loginUser(email: String, password: String) : LoginResponse
+    }
+
+    type User {
+        first_name: String,
+        last_name: String,
+        email: String,
+        password: String
+    }
+
+    type LoginResponse {
+        loginToken: String,
+        message: String
+    }
+
+    type Mutation {
+        createUser(
+            first_name: String,
+            last_name: String,
+            email: String,
+            password: String
+        ) : String
+    }
+
     type Mutation {
         createCost(
             amount: Float

@@ -3,7 +3,7 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import typeDefs from "./graphql/schema/schemas.js";
-import resolvers from "./graphql/resolvers/CostResolver.js";
+import resolvers from "./graphql/resolvers/resolvers.js";
 import express from "express";
 import http from "http";
 import bodyParser from "body-parser";

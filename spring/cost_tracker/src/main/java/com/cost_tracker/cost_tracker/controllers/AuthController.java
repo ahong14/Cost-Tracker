@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -42,10 +44,14 @@ public class AuthController {
         if (loginToken == null || !loginToken.isPresent()) {
             return new ResponseEntity<>("Failed to login", HttpStatus.BAD_REQUEST);
         }
-
+        Map<String, String> body = new HashMap<>();
         String loginTokenCookie = loginToken.get();
+        // create JSON body response with login token
+        body.put("loginToken", loginTokenCookie);
+        body.put("message", "Login successful");
         HttpHeaders loginHeaders = new HttpHeaders();
         loginHeaders.add("Set-Cookie", "loginToken=" + loginTokenCookie + " Path=/; Secure: HttpOnly");
-        return new ResponseEntity<>("Login successful", loginHeaders, HttpStatus.OK);
+
+        return new ResponseEntity<>(body, loginHeaders, HttpStatus.OK);
     }
 }
