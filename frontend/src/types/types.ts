@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 export type Cost = {
     id: number;
     amount: number;
@@ -7,4 +9,10 @@ export type Cost = {
     quantity: number;
     user_id: number;
     __typename?: string;
+};
+
+export type CostFilterType = {
+    title?: string | null;
+    fromDate?: Dayjs | null;
+    toDate?: Dayjs | null;
 };

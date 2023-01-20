@@ -17,6 +17,31 @@ const resolvers = {
                 }
             };
             return getCostsFromAPI();
+        },
+        getCostsWithFilter(_, { userId, title, fromDate, toDate }) {
+            const getCostsWithFilterFromAPI = async () => {
+                let results = [];
+                try {
+                    let GET_COST_API_URL = `http://localhost:8080/api/cost?userId=${userId}`;
+                    // if title filter selected
+                    if (title) {
+                        GET_COST_API_URL += `&title=${title}`;
+                    }
+                    // if from/to date filter selected
+                    if (fromDate && toDate) {
+                        GET_COST_API_URL += `&fromDate=${new Date(fromDate).getTime() / 1000}`;
+                        GET_COST_API_URL += `&toDate=${new Date(toDate).getTime() / 1000}`;
+                    }
+                    const apiResults = await axios.get(GET_COST_API_URL);
+                    results = apiResults.data;
+                    return results;
+                }
+                catch (err) {
+                    console.error(err);
+                    return results;
+                }
+            };
+            return getCostsWithFilterFromAPI();
         }
     },
     Mutation: {

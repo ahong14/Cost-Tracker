@@ -24,11 +24,22 @@ public class CostService {
         this.costRepository = costRepository;
     }
 
-    public Optional<List<Cost>> getUserCosts(Integer userId, int offset, int limit) {
+    public Optional<List<Cost>> getUserCosts(int userId, int offset, int limit, String title, Integer fromDate, Integer toDate) {
         try {
+            Optional<List<Cost>> userCosts = Optional.empty();
             // TODO fix pagination and limit
-            int page = offset / limit;
-            Optional<List<Cost>> userCosts = costRepository.findCostsByUserIdOrderByDateDesc(userId);
+            if (title == null && fromDate != null && toDate != null) {
+                // find costs between from/to dates
+                userCosts = costRepository.findCostsByUserIdAndDateUnixBetweenOrderByDateUnixAsc(userId, fromDate, toDate);
+            } else if (title != null && fromDate == null && toDate == null) {
+                // find costs by title and user id
+                userCosts = costRepository.findCostsByUserIdAndTitleContainingIgnoreCase(userId, title);
+            } else if (title != null && fromDate != null && toDate != null) {
+                // find costs by title, from date, and end date
+//                userCosts = costRepository.findCostsByUserIdAndTitleContainingIgnoreCaseAndDate_unixGreaterThanAndDate_unixLessThan(userId, title, fromDate, toDate);
+            } else {
+                userCosts = costRepository.findCostsByUserIdOrderByDateDesc(userId);
+            }
             return userCosts;
         } catch (Exception e) {
             logger.error(e.getMessage());

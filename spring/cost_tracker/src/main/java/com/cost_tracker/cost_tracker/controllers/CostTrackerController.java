@@ -23,8 +23,11 @@ public class CostTrackerController {
     }
 
     @GetMapping()
-    public ResponseEntity getUserCosts(@RequestParam Integer userId) {
-        Optional<List<Cost>> userCosts = costService.getUserCosts(userId, 0, MAX_RESULTS);
+    public ResponseEntity getUserCosts(@RequestParam int userId,
+                                       @RequestParam(required = false) String title,
+                                       @RequestParam(required = false) Integer fromDate,
+                                       @RequestParam(required = false) Integer toDate) {
+        Optional<List<Cost>> userCosts = costService.getUserCosts(userId, 0, MAX_RESULTS, title, fromDate, toDate);
         if (userCosts == null) {
             return new ResponseEntity<>("Failed to get user costs.", HttpStatus.BAD_REQUEST);
         }

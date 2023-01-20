@@ -3,6 +3,10 @@ const typeDefs = `#graphql
         getCosts(userId: Int!): [Costs]
     }
 
+    type Query {
+        getCostsWithFilter(userId: Int!, title: String,fromDate: String, toDate: String): [Costs]
+    }
+
     type Costs {
         id: Int,
         amount: Float,
