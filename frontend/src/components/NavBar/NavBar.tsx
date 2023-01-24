@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 // reference: https://mui.com/material-ui/react-app-bar/
 const NavBar = () => {
     return (
-        <AppBar position="static" sx={{ bgcolor: "green" }}>
+        <AppBar position="fixed" sx={{ bgcolor: "green" }}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <PaidIcon

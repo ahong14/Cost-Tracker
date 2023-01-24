@@ -33,6 +33,11 @@ const typeDefs = `#graphql
         message: String
     }
 
+    type CreateCostResponse {
+        success: Boolean,
+        data: String
+    }
+
     type Mutation {
         createUser(
             first_name: String,
@@ -50,7 +55,7 @@ const typeDefs = `#graphql
             quantity: Int
             title: String
             user_id: Int
-        ): String
+        ): CreateCostResponse
     }
 `;
 

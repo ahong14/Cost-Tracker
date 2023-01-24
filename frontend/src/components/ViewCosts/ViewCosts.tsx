@@ -102,7 +102,7 @@ const ViewCosts = () => {
     };
 
     const clearCostsFilter = () => {
-        setTitleFilter(null);
+        setTitleFilter("");
         setFromDate(null);
         setToDate(null);
         setCostFilter({});
@@ -133,10 +133,13 @@ const ViewCosts = () => {
                   return <CostItem {...renderCost} />;
               });
     return (
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" className="costContainer">
             <Typography variant="h5"> Costs </Typography>
             <Accordion sx={{ width: "50%" }}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <AccordionSummary
+                    sx={{ marginTop: "10px", marginBottom: "10px" }}
+                    expandIcon={<ExpandMoreIcon />}
+                >
                     <Typography variant="h6"> Filters </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -199,7 +202,11 @@ const ViewCosts = () => {
             ) : (
                 ""
             )}
-            {renderCosts && renderCosts.length ? renderCosts : "No costs found"}
+            <Stack marginTop={2}>
+                {renderCosts && renderCosts.length
+                    ? renderCosts
+                    : "No costs found"}
+            </Stack>
         </Container>
     );
 };

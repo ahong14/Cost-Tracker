@@ -9,7 +9,8 @@ import java.util.Optional;
 
 public interface CostRepository extends JpaRepository<Cost, Integer> {
     // get costs by user id ordered by date desc
-    Optional<List<Cost>> findCostsByUserIdOrderByDateDesc(Integer userId);
+    @Query(value = "SELECT * FROM cost WHERE user_id = ?1 LIMIT ?2 OFFSET ?3",nativeQuery = true)
+    Optional<List<Cost>> findCostsByUserIdOrderByDateDesc(Integer userId, Integer limit, Integer offset);
 
 
     // get costs between dates

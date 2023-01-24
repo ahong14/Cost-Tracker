@@ -65,7 +65,10 @@ const resolvers = {
                             user_id: user_id
                         }
                     );
-                    const results = apiResults.data;
+                    const results = {
+                        success: true,
+                        data: apiResults.data
+                    };
                     return results;
                 } catch (err) {
                     console.error(err);
