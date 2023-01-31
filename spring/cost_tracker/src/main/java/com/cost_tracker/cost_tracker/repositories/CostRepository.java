@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface CostRepository extends JpaRepository<Cost, Integer> {
     // get costs by user id ordered by date desc
-    @Query(value = "SELECT * FROM cost WHERE user_id = ?1 LIMIT ?2 OFFSET ?3",nativeQuery = true)
+    @Query(value = "SELECT * FROM cost WHERE user_id = :userId LIMIT :limit OFFSET :offset",nativeQuery = true)
     Optional<List<Cost>> findCostsByUserIdOrderByDateDesc(Integer userId, Integer limit, Integer offset);
 
 
@@ -18,10 +18,10 @@ public interface CostRepository extends JpaRepository<Cost, Integer> {
     Optional<List<Cost>> findCostsByUserIdAndDateUnixBetweenOrderByDateUnixAsc(Integer userId, Integer fromDate, Integer endDate);
 
     // get costs by title
+    @Query(value = "SELECT * FROM cost WHERE user_id = :userId AND title LIKE %:title% ORDER BY date_unix ASC", nativeQuery = true)
     Optional<List<Cost>> findCostsByUserIdAndTitleContainingIgnoreCase(Integer userId, String title);
 
-
-    // TODO
     // get costs by title and date between
-//    Optional<List<Cost>> findCostsByUserIdAndTitleContainingIgnoreCaseAndDate_unixGreaterThanAndDate_unixLessThan(Integer userId, String title, Integer fromDate, Integer toDate);
+    @Query(value = "SELECT * FROM cost WHERE user_id = :userId AND title LIKE %:title% AND date_unix BETWEEN :fromDate AND :toDate ORDER BY date_unix ASC", nativeQuery = true)
+    Optional<List<Cost>> findCostsByUserIdAndTitleAndDate(Integer userId, String title, Integer fromDate, Integer toDate);
 }

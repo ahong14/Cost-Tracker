@@ -36,7 +36,7 @@ public class CostService {
                 userCosts = costRepository.findCostsByUserIdAndTitleContainingIgnoreCase(userId, title);
             } else if (title != null && fromDate != null && toDate != null) {
                 // find costs by title, from date, and end date
-//                userCosts = costRepository.findCostsByUserIdAndTitleContainingIgnoreCaseAndDate_unixGreaterThanAndDate_unixLessThan(userId, title, fromDate, toDate);
+                userCosts = costRepository.findCostsByUserIdAndTitleAndDate(userId, title, fromDate, toDate);
             } else {
                 userCosts = costRepository.findCostsByUserIdOrderByDateDesc(userId, limit, offset);
             }
