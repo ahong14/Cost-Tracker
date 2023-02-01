@@ -45,4 +45,13 @@ public class CostTrackerController {
         return new ResponseEntity<>("Cost created successfully", HttpStatus.OK);
     }
 
+    @DeleteMapping
+    public ResponseEntity deleteCost(@RequestParam int userId, @RequestParam int costId) {
+        boolean deleteCostResult = costService.deleteCost(userId, costId);
+        if (!deleteCostResult) {
+            return new ResponseEntity<>("Failed to delete cost.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("Cost deleted successfully", HttpStatus.OK);
+    }
+
 }

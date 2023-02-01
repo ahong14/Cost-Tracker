@@ -33,7 +33,7 @@ const typeDefs = `#graphql
         message: String
     }
 
-    type CreateCostResponse {
+    type CostResponse {
         success: Boolean,
         data: String
     }
@@ -55,7 +55,14 @@ const typeDefs = `#graphql
             quantity: Int
             title: String
             user_id: Int
-        ): CreateCostResponse
+        ): CostResponse
+    }
+
+    type Mutation {
+        deleteCost(
+            userId: Int!
+            costId: Int!
+        ): CostResponse
     }
 `;
 export default typeDefs;

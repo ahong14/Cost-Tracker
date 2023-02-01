@@ -30,7 +30,7 @@ public class CostService {
 
     public Optional<List<Cost>> getUserCosts(int userId,
                                              int offset,
-                                             int limit, 
+                                             int limit,
                                              String title,
                                              Integer fromDate,
                                              Integer toDate,
@@ -71,6 +71,16 @@ public class CostService {
             LocalDate costDate = newCost.getDate();
             newCost.setDate_unix(costDate.toEpochSecond(LocalTime.NOON, ZoneOffset.MIN));
             costRepository.save(newCost);
+            return true;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean deleteCost(int userId, int costId) {
+        try {
+            costRepository.deleteUserCost(userId, costId);
             return true;
         } catch (Exception e) {
             logger.error(e.getMessage());

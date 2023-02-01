@@ -77,6 +77,19 @@ const resolvers = {
             };
 
             return createCostAPI();
+        },
+        deleteCost(_, { userId, costId }) {
+            const deleteCostAPI = async () => {
+                const apiResults = await axios.delete(
+                    `http://localhost:8080/api/cost?userId=${userId}&costId=${costId}`
+                );
+                const results = {
+                    success: true,
+                    data: apiResults.data
+                };
+                return results;
+            };
+            return deleteCostAPI();
         }
     }
 };
