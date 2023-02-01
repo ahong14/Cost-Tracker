@@ -1,10 +1,10 @@
 const typeDefs = `#graphql
     type Query {
-        getCosts(userId: Int!): [Costs]
+        getCosts(userId: Int!, sortDir: String!): [Costs]
     }
 
     type Query {
-        getCostsWithFilter(userId: Int!, title: String,fromDate: String, toDate: String): [Costs]
+        getCostsWithFilter(userId: Int!, title: String, fromDate: String, toDate: String, sortDir: String!): [Costs]
     }
 
     type Costs {

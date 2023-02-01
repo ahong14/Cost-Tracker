@@ -15,6 +15,8 @@ import {
     TextField,
     Typography
 } from "@mui/material";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -25,8 +27,8 @@ import { Cost, CostFilterType } from "../../types/types";
 
 const ViewCosts = () => {
     const GET_COSTS = gql`
-        query GetCosts($userId: Int!) {
-            getCosts(userId: $userId) {
+        query GetCosts($userId: Int!, $sortDir: String!) {
+            getCosts(userId: $userId, sortDir: $sortDir) {
                 date
                 amount
                 date_unix
@@ -44,12 +46,14 @@ const ViewCosts = () => {
             $title: String
             $fromDate: String
             $toDate: String
+            $sortDir: String!
         ) {
             getCostsWithFilter(
                 userId: $userId
                 title: $title
                 fromDate: $fromDate
                 toDate: $toDate
+                sortDir: $sortDir
             ) {
                 date
                 amount
@@ -66,15 +70,16 @@ const ViewCosts = () => {
     const [titleFilter, setTitleFilter] = useState<string | null>(null);
     const [fromDate, setFromDate] = useState<Dayjs | null>(null);
     const [toDate, setToDate] = useState<Dayjs | null>(null);
+    const [sortDirection, setSortDirection] = useState<string>("asc");
 
     const userId = 1;
     const { loading, error, data } = useQuery(GET_COSTS, {
-        variables: { userId },
+        variables: { userId: userId, sortDir: sortDirection },
         fetchPolicy: "no-cache"
     });
 
     const dataFilter = useQuery(GET_COSTS_WITH_FILTER, {
-        variables: { userId, ...costFilter },
+        variables: { userId, ...costFilter, sortDir: sortDirection },
         fetchPolicy: "no-cache"
     });
 
@@ -90,6 +95,12 @@ const ViewCosts = () => {
 
     const onToDateChange = (newToDate: Dayjs | null) => {
         setToDate(newToDate);
+    };
+
+    const onSortDirectionChange = () => {
+        sortDirection === "asc"
+            ? setSortDirection("desc")
+            : setSortDirection("asc");
     };
 
     const submitCostsFilter = () => {
@@ -203,6 +214,25 @@ const ViewCosts = () => {
                 ""
             )}
             <Stack marginTop={2}>
+                <Stack sx={{ width: "300px" }}>
+                    <Typography> Sort Direction: </Typography>
+                    <Button
+                        onClick={onSortDirectionChange}
+                        startIcon={
+                            sortDirection === "asc" ? (
+                                <ArrowUpwardIcon />
+                            ) : (
+                                <ArrowDownwardIcon />
+                            )
+                        }
+                        size="medium"
+                        sx={{ marginTop: "20px", marginBottom: "20px" }}
+                        color="primary"
+                    >
+                        {sortDirection === "asc" ? "Ascending" : "Descending"}
+                    </Button>
+                </Stack>
+
                 {renderCosts && renderCosts.length
                     ? renderCosts
                     : "No costs found"}

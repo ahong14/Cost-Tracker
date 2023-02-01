@@ -3,11 +3,11 @@ const resolvers = {
     Query: {
         // reference: https://www.apollographql.com/docs/apollo-server/data/resolvers
         // params (parent, args, contextValue info)
-        getCosts(_, { userId }) {
+        getCosts(_, { userId, sortDir }) {
             const getCostsFromAPI = async () => {
                 let results = [];
                 try {
-                    const apiResults = await axios.get(`http://localhost:8080/api/cost?userId=${userId}`);
+                    const apiResults = await axios.get(`http://localhost:8080/api/cost?userId=${userId}&sortDir=${sortDir}`);
                     results = apiResults.data;
                     return results;
                 }
@@ -18,11 +18,11 @@ const resolvers = {
             };
             return getCostsFromAPI();
         },
-        getCostsWithFilter(_, { userId, title, fromDate, toDate }) {
+        getCostsWithFilter(_, { userId, title, fromDate, toDate, sortDir }) {
             const getCostsWithFilterFromAPI = async () => {
                 let results = [];
                 try {
-                    let GET_COST_API_URL = `http://localhost:8080/api/cost?userId=${userId}`;
+                    let GET_COST_API_URL = `http://localhost:8080/api/cost?userId=${userId}&sortDir=${sortDir}`;
                     // if title filter selected
                     if (title) {
                         GET_COST_API_URL += `&title=${title}`;
