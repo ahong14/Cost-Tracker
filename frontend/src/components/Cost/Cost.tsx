@@ -31,6 +31,13 @@ const CostItem = (props: Cost) => {
                 costId: props.id
             }
         });
+
+        // get costs after deletion
+        if (props.refetchCosts && !props.isFiltered) {
+            props.refetchCosts();
+        } else if (props.isFiltered && props.refetchCostsFilter) {
+            props.refetchCostsFilter();
+        }
     };
 
     // TODO have parent component re-render, get updated costs

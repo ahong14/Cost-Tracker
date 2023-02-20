@@ -9,6 +9,9 @@ export type Cost = {
     quantity: number;
     user_id: number;
     __typename?: string;
+    refetchCosts?: Function;
+    refetchCostsFilter?: Function;
+    isFiltered: boolean;
 };
 
 export type CostFilterType = {

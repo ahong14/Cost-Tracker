@@ -72,15 +72,18 @@ const ViewCosts = () => {
     const [toDate, setToDate] = useState<Dayjs | null>(null);
     const [sortDirection, setSortDirection] = useState<string>("asc");
 
+    // TODO get userId from login state
     const userId = 1;
-    const { loading, error, data } = useQuery(GET_COSTS, {
+    const { loading, error, data, refetch } = useQuery(GET_COSTS, {
         variables: { userId: userId, sortDir: sortDirection },
-        fetchPolicy: "no-cache"
+        fetchPolicy: "no-cache",
+        notifyOnNetworkStatusChange: true
     });
 
     const dataFilter = useQuery(GET_COSTS_WITH_FILTER, {
         variables: { userId, ...costFilter, sortDir: sortDirection },
-        fetchPolicy: "no-cache"
+        fetchPolicy: "no-cache",
+        notifyOnNetworkStatusChange: true
     });
 
     const onTitleFilterChange = (
@@ -116,7 +119,7 @@ const ViewCosts = () => {
         setTitleFilter("");
         setFromDate(null);
         setToDate(null);
-        setCostFilter({});
+        setCostFilter(null);
     };
 
     // when initial data changes
@@ -141,7 +144,14 @@ const ViewCosts = () => {
         !costs || !costs.length
             ? []
             : (costs || []).map((renderCost: Cost) => {
-                  return <CostItem {...renderCost} />;
+                  return (
+                      <CostItem
+                          {...renderCost}
+                          refetchCosts={refetch}
+                          refetchCostsFilter={dataFilter.refetch}
+                          isFiltered={costFilter ? true : false}
+                      />
+                  );
               });
     return (
         <Container maxWidth="lg" className="costContainer">
