@@ -54,6 +54,19 @@ const NavBar = () => {
                                 Create Costs
                             </Button>
                         </Link>
+                        <Link
+                            to="/createBatchCosts"
+                            style={{
+                                textDecoration: "none",
+                                color: "inherit"
+                            }}
+                        >
+                            <Button
+                                sx={{ my: 2, color: "white", display: "block" }}
+                            >
+                                Create Batch Costs
+                            </Button>
+                        </Link>
                     </Box>
                 </Toolbar>
             </Container>

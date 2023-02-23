@@ -1,5 +1,6 @@
 package com.cost_tracker.cost_tracker.controllers;
 
+import com.cost_tracker.cost_tracker.models.BatchCostRequest;
 import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.services.CostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,4 +55,12 @@ public class CostTrackerController {
         return new ResponseEntity<>("Cost deleted successfully", HttpStatus.OK);
     }
 
+    @PostMapping(path = "batchCost")
+    public ResponseEntity createBatchCost(@RequestBody BatchCostRequest batchCostRequest) {
+        boolean createBatchCostResult = costService.createBatchCost(batchCostRequest);
+        if (!createBatchCostResult) {
+            return new ResponseEntity<>("Failed to create batch cost.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("Create batch cost message queued successfully.", HttpStatus.ACCEPTED);
+    }
 }

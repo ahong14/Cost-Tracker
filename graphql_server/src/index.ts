@@ -3,6 +3,7 @@
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import typeDefs from "./graphql/schema/schemas.js";
 import resolvers from "./graphql/resolvers/resolvers.js";
 
@@ -40,6 +41,7 @@ app.use(
     "/graphql",
     bodyParser.json(),
     cors(),
+    graphqlUploadExpress(),
     expressMiddleware(graphqlServer)
 );
 

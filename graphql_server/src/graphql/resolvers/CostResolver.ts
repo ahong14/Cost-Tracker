@@ -1,6 +1,10 @@
 import axios from "axios";
+import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
+import fs from "fs";
+import path from "path";
 
 const resolvers = {
+    Upload: GraphQLUpload,
     Query: {
         // reference: https://www.apollographql.com/docs/apollo-server/data/resolvers
         // params (parent, args, contextValue info)
@@ -90,6 +94,24 @@ const resolvers = {
                 return results;
             };
             return deleteCostAPI();
+        },
+        uploadBatchCosts(_, { file }) {
+            const saveBatchCostsFile = async () => {
+                const { createReadStream, filename, encoding, mimetype } =
+                    await file;
+
+                // TODO
+                // saving to local filesystem, but file would be uploaded to external file storage
+                // const stream = createReadStream();
+
+                const results = {
+                    success: true,
+                    data: "Test"
+                };
+                return results;
+            };
+
+            return saveBatchCostsFile();
         }
     }
 };

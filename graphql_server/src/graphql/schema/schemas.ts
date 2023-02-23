@@ -1,4 +1,6 @@
 const typeDefs = `#graphql
+    scalar Upload
+    
     type Query {
         getCosts(userId: Int!, sortDir: String!): [Costs]
     }
@@ -63,6 +65,10 @@ const typeDefs = `#graphql
             userId: Int!
             costId: Int!
         ): CostResponse
+    }
+
+    type Mutation {
+        uploadBatchCosts(file: Upload): CostResponse
     }
 `;
 

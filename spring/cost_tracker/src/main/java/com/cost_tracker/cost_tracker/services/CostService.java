@@ -1,5 +1,7 @@
 package com.cost_tracker.cost_tracker.services;
 
+import com.cost_tracker.cost_tracker.kafka.BatchCostMessageProducer;
+import com.cost_tracker.cost_tracker.models.BatchCostRequest;
 import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.repositories.CostRepository;
 
@@ -20,12 +22,14 @@ import java.util.Optional;
 public class CostService {
     private static final Logger logger = LogManager.getLogger(CostService.class);
     private final CostRepository costRepository;
+    private final BatchCostMessageProducer batchCostMessageProducer;
 
     private static final String SORT_PROPERTY = "date_unix";
 
     @Autowired
-    public CostService(CostRepository costRepository) {
+    public CostService(CostRepository costRepository, BatchCostMessageProducer batchCostMessageProducer) {
         this.costRepository = costRepository;
+        this.batchCostMessageProducer = batchCostMessageProducer;
     }
 
     public Optional<List<Cost>> getUserCosts(int userId,
@@ -81,6 +85,17 @@ public class CostService {
     public boolean deleteCost(int userId, int costId) {
         try {
             costRepository.deleteUserCost(userId, costId);
+            return true;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean createBatchCost(BatchCostRequest batchCostRequest) {
+        try {
+            // send message to kafka topic
+            this.batchCostMessageProducer.sendMessage(batchCostRequest);
             return true;
         } catch (Exception e) {
             logger.error(e.getMessage());
