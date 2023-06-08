@@ -27,40 +27,41 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public boolean createUser(User newUser) {
-        try {
-            Optional<User> foundUser = userRepository.findUserByEmail(newUser.getEmail());
-            if (foundUser.isPresent()) {
-                logger.info("Found user: " + foundUser);
-                logger.error("Email found for user, unable to create new user.");
-                return false;
-            }
-            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-            userRepository.save(newUser);
-            logger.info("New user created successfully for: " + newUser);
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return false;
+    /**
+     * @param newUser, object containing user properties
+     * @return newly created user
+     */
+    public User createUser(User newUser) {
+        Optional<User> foundUser = userRepository.findUserByEmail(newUser.getEmail());
+        if (foundUser.isPresent()) {
+            logger.error("Email found for user, unable to create new user.");
+            throw new IllegalArgumentException("Email found for user");
         }
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        return userRepository.save(newUser);
     }
 
 
+    /**
+     * @param email,    email of user
+     * @param password, password of user
+     * @return JWT loginToken
+     * @throws IllegalArgumentException
+     */
     public Optional<String> loginUser(String email, String password) {
         Optional<User> foundUser = userRepository.findUserByEmail(email);
+        logger.info("found user: " + foundUser);
         if (foundUser.isEmpty()) {
             logger.error("User email not found");
-            return null;
+            throw new IllegalArgumentException("User email not found");
         }
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(password);
         User getFoundUser = foundUser.get();
-
-        if (!passwordEncoder.matches(password, hashedPassword)) {
+        if (!passwordEncoder.matches(password, getFoundUser.getPassword())) {
             logger.error("Passwords do not match");
-            return null;
+            throw new IllegalArgumentException("Passwords do not match");
         }
 
         return Optional.ofNullable(JWT.create().withSubject("User")
@@ -69,7 +70,7 @@ public class UserService {
                 .withClaim("FirstName", getFoundUser.getFirst_name())
                 .withClaim("LastName", getFoundUser.getLast_name())
                 .withIssuedAt(new Date())
-                .withIssuer("Test Issuer")
+                .withIssuer("Cost Tracker Issuer")
                 .sign(Algorithm.HMAC256(jwt_secret)));
     }
 }

@@ -3,6 +3,7 @@ package com.cost_tracker.cost_tracker.services;
 import com.cost_tracker.cost_tracker.kafka.BatchCostMessageProducer;
 import com.cost_tracker.cost_tracker.models.BatchCostRequest;
 import com.cost_tracker.cost_tracker.models.Cost;
+import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
 import com.cost_tracker.cost_tracker.repositories.CostRepository;
 
 import org.apache.logging.log4j.Logger;
@@ -32,54 +33,59 @@ public class CostService {
         this.batchCostMessageProducer = batchCostMessageProducer;
     }
 
-    public Optional<List<Cost>> getUserCosts(int userId,
-                                             int offset,
-                                             int limit,
-                                             String title,
-                                             Integer fromDate,
-                                             Integer toDate,
-                                             String sortDir) {
-        try {
-            Optional<List<Cost>> userCosts;
+    /**
+     * @param getUserCostsRequest, object containing params to get user requests
+     * @return list of costs or null, Optional<List < Cost>>
+     */
+    public Optional<List<Cost>> getUserCosts(GetUserCostsRequest getUserCostsRequest) {
+        // return list of user costs or null
+        Optional<List<Cost>> userCosts;
 
-            // setup sort direction based on sortDir param
-            Sort.Direction sortDirection = Sort.Direction.ASC;
-            if (sortDir != null && sortDir.trim().equals("desc")) {
-                sortDirection = Sort.Direction.DESC;
-            }
-            PageRequest pageRequest = PageRequest.of(offset, limit, sortDirection, SORT_PROPERTY);
+        // extract values from getUserCostsRequest
+        int userId = getUserCostsRequest.getUserId();
+        Optional<String> title = getUserCostsRequest.getTitle();
+        Optional<String> sortDir = getUserCostsRequest.getSortDir();
+        Optional<Integer> fromDate = getUserCostsRequest.getFromDate();
+        Optional<Integer> toDate = getUserCostsRequest.getToDate();
 
-            // TODO fix pagination and limit
-            if (title == null && fromDate != null && toDate != null) {
-                // find costs between from/to dates
-                userCosts = costRepository.findCostsByUserIdAndDateUnix(userId, fromDate, toDate, pageRequest);
-            } else if (title != null && fromDate == null && toDate == null) {
-                // find costs by title and user id
-                userCosts = costRepository.findCostsByUserIdAndTitle(userId, title, pageRequest);
-            } else if (title != null && fromDate != null && toDate != null) {
-                // find costs by title, from date, and end date
-                userCosts = costRepository.findCostsByUserIdAndTitleAndDate(userId, title, fromDate, toDate, pageRequest);
-            } else {
-                userCosts = costRepository.findCostsByUserId(userId, pageRequest);
-            }
-            return userCosts;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return null;
+
+        // setup sort direction based on sortDir param
+        Sort.Direction sortDirection = Sort.Direction.ASC;
+        if (sortDir.isPresent() && sortDir.get().trim().equals("desc")) {
+            sortDirection = Sort.Direction.DESC;
         }
+        PageRequest pageRequest = PageRequest.of(getUserCostsRequest.getOffset(), getUserCostsRequest.getLimit(), sortDirection, SORT_PROPERTY);
+
+        // TODO fix pagination and limit
+        if (title.isEmpty() && fromDate.isPresent() && toDate.isPresent()) {
+            // find costs between from/to dates
+            logger.info("finding costs by user id, from/to date ***");
+            userCosts = costRepository.findCostsByUserIdAndDateUnix(getUserCostsRequest.getUserId(), getUserCostsRequest.getFromDate().get(), getUserCostsRequest.getToDate().get(), pageRequest);
+        } else if (title.isPresent() && fromDate.isEmpty() && toDate.isEmpty()) {
+            // find costs by title and user id
+            logger.info("finding costs by user id, title ***");
+            userCosts = costRepository.findCostsByUserIdAndTitle(userId, title.get(), pageRequest);
+        } else if (title.isPresent() && fromDate.isPresent() && toDate.isPresent()) {
+            // find costs by title, from date, and end date
+            logger.info("finding costs by user id, title, from/to date ***");
+            userCosts = costRepository.findCostsByUserIdAndTitleAndDate(userId, title.get(), fromDate.get(), toDate.get(), pageRequest);
+        } else {
+            logger.info("finding costs by user id ***");
+            userCosts = costRepository.findCostsByUserId(userId, pageRequest);
+        }
+
+        return userCosts;
     }
 
-    public boolean createCost(Cost newCost) {
-        try {
-            // convert date time to unix timestamp
-            LocalDate costDate = newCost.getDate();
-            newCost.setDate_unix(costDate.toEpochSecond(LocalTime.NOON, ZoneOffset.MIN));
-            costRepository.save(newCost);
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return false;
-        }
+    /**
+     * @param newCost, param of new cost being created
+     * @return Cost, newly created cost
+     */
+    public Cost createCost(Cost newCost) {
+        // convert date time to unix timestamp
+        LocalDate costDate = newCost.getDate();
+        newCost.setDate_unix(costDate.toEpochSecond(LocalTime.NOON, ZoneOffset.MIN));
+        return costRepository.save(newCost);
     }
 
     public boolean deleteCost(int userId, int costId) {
