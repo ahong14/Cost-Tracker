@@ -3,7 +3,7 @@ package com.cost_tracker.cost_tracker.controllers;
 import com.cost_tracker.cost_tracker.models.BatchCostRequest;
 import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
-import com.cost_tracker.cost_tracker.services.CostService;
+import com.cost_tracker.cost_tracker.services.CostServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
@@ -21,15 +21,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping(path = "/api/cost")
 public class CostTrackerController {
-    private final CostService costService;
+    private final CostServiceImpl costServiceImpl;
 
     private static final Logger logger = LoggerFactory.getLogger(CostTrackerController.class);
 
     private final int MAX_RESULTS = 50;
 
     @Autowired
-    public CostTrackerController(CostService costService) {
-        this.costService = costService;
+    public CostTrackerController(CostServiceImpl costServiceImpl) {
+        this.costServiceImpl = costServiceImpl;
     }
 
     /**
@@ -50,7 +50,7 @@ public class CostTrackerController {
             logger.info("building getUserCostsRequest");
             GetUserCostsRequest getUserCostsRequest = new GetUserCostsRequest(userId, 0, MAX_RESULTS, Optional.ofNullable(fromDate), Optional.ofNullable(toDate), Optional.ofNullable(title), Optional.ofNullable(sortDir));
             logger.info(getUserCostsRequest.toString());
-            Optional<List<Cost>> userCosts = costService.getUserCosts(getUserCostsRequest);
+            Optional<List<Cost>> userCosts = costServiceImpl.getUserCosts(getUserCostsRequest);
             return new ResponseEntity<>(userCosts, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Exception getting costs: " + e.getMessage());
@@ -65,7 +65,7 @@ public class CostTrackerController {
     @PostMapping
     public ResponseEntity createCost(@RequestBody Cost newCost) {
         try {
-            Cost createCostResult = costService.createCost(newCost);
+            Cost createCostResult = costServiceImpl.createCost(newCost);
             // create response with cost and message
             Map<String, String> body = new HashMap<>();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -79,18 +79,26 @@ public class CostTrackerController {
         }
     }
 
+    /**
+     * @param userId, user id
+     * @param costId, cost id of cost being deleted
+     * @return response, status code and body
+     */
     @DeleteMapping
     public ResponseEntity deleteCost(@RequestParam int userId, @RequestParam int costId) {
-        boolean deleteCostResult = costService.deleteCost(userId, costId);
-        if (!deleteCostResult) {
-            return new ResponseEntity<>("Failed to delete cost.", HttpStatus.BAD_REQUEST);
+        try {
+            costServiceImpl.deleteCost(userId, costId);
+            return new ResponseEntity<>("Cost deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return new ResponseEntity<>("Failed to delete cost: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("Cost deleted successfully", HttpStatus.OK);
+
     }
 
     @PostMapping(path = "batchCost")
     public ResponseEntity createBatchCost(@RequestBody BatchCostRequest batchCostRequest) {
-        boolean createBatchCostResult = costService.createBatchCost(batchCostRequest);
+        boolean createBatchCostResult = costServiceImpl.createBatchCost(batchCostRequest);
         if (!createBatchCostResult) {
             return new ResponseEntity<>("Failed to create batch cost.", HttpStatus.BAD_REQUEST);
         }

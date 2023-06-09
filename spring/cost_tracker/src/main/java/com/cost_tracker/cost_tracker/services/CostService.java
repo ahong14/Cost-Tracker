@@ -1,111 +1,18 @@
 package com.cost_tracker.cost_tracker.services;
 
-import com.cost_tracker.cost_tracker.kafka.BatchCostMessageProducer;
 import com.cost_tracker.cost_tracker.models.BatchCostRequest;
 import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
-import com.cost_tracker.cost_tracker.repositories.CostRepository;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class CostService {
-    private static final Logger logger = LogManager.getLogger(CostService.class);
-    private final CostRepository costRepository;
-    private final BatchCostMessageProducer batchCostMessageProducer;
+public interface CostService {
+    Optional<List<Cost>> getUserCosts(GetUserCostsRequest getUserCostsRequest);
 
-    private static final String SORT_PROPERTY = "date_unix";
+    Cost createCost(Cost newCost);
 
-    @Autowired
-    public CostService(CostRepository costRepository, BatchCostMessageProducer batchCostMessageProducer) {
-        this.costRepository = costRepository;
-        this.batchCostMessageProducer = batchCostMessageProducer;
-    }
+    void deleteCost(int userId, int costId);
 
-    /**
-     * @param getUserCostsRequest, object containing params to get user requests
-     * @return list of costs or null, Optional<List < Cost>>
-     */
-    public Optional<List<Cost>> getUserCosts(GetUserCostsRequest getUserCostsRequest) {
-        // return list of user costs or null
-        Optional<List<Cost>> userCosts;
-
-        // extract values from getUserCostsRequest
-        int userId = getUserCostsRequest.getUserId();
-        Optional<String> title = getUserCostsRequest.getTitle();
-        Optional<String> sortDir = getUserCostsRequest.getSortDir();
-        Optional<Integer> fromDate = getUserCostsRequest.getFromDate();
-        Optional<Integer> toDate = getUserCostsRequest.getToDate();
-
-
-        // setup sort direction based on sortDir param
-        Sort.Direction sortDirection = Sort.Direction.ASC;
-        if (sortDir.isPresent() && sortDir.get().trim().equals("desc")) {
-            sortDirection = Sort.Direction.DESC;
-        }
-        PageRequest pageRequest = PageRequest.of(getUserCostsRequest.getOffset(), getUserCostsRequest.getLimit(), sortDirection, SORT_PROPERTY);
-
-        // TODO fix pagination and limit
-        if (title.isEmpty() && fromDate.isPresent() && toDate.isPresent()) {
-            // find costs between from/to dates
-            logger.info("finding costs by user id, from/to date ***");
-            userCosts = costRepository.findCostsByUserIdAndDateUnix(getUserCostsRequest.getUserId(), getUserCostsRequest.getFromDate().get(), getUserCostsRequest.getToDate().get(), pageRequest);
-        } else if (title.isPresent() && fromDate.isEmpty() && toDate.isEmpty()) {
-            // find costs by title and user id
-            logger.info("finding costs by user id, title ***");
-            userCosts = costRepository.findCostsByUserIdAndTitle(userId, title.get(), pageRequest);
-        } else if (title.isPresent() && fromDate.isPresent() && toDate.isPresent()) {
-            // find costs by title, from date, and end date
-            logger.info("finding costs by user id, title, from/to date ***");
-            userCosts = costRepository.findCostsByUserIdAndTitleAndDate(userId, title.get(), fromDate.get(), toDate.get(), pageRequest);
-        } else {
-            logger.info("finding costs by user id ***");
-            userCosts = costRepository.findCostsByUserId(userId, pageRequest);
-        }
-
-        return userCosts;
-    }
-
-    /**
-     * @param newCost, param of new cost being created
-     * @return Cost, newly created cost
-     */
-    public Cost createCost(Cost newCost) {
-        // convert date time to unix timestamp
-        LocalDate costDate = newCost.getDate();
-        newCost.setDate_unix(costDate.toEpochSecond(LocalTime.NOON, ZoneOffset.MIN));
-        return costRepository.save(newCost);
-    }
-
-    public boolean deleteCost(int userId, int costId) {
-        try {
-            costRepository.deleteUserCost(userId, costId);
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean createBatchCost(BatchCostRequest batchCostRequest) {
-        try {
-            // send message to kafka topic
-            this.batchCostMessageProducer.sendMessage(batchCostRequest);
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return false;
-        }
-    }
+    boolean createBatchCost(BatchCostRequest batchCostRequest);
 }

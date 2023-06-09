@@ -2,7 +2,7 @@ package com.cost_tracker.cost_tracker.controllers;
 
 import com.cost_tracker.cost_tracker.models.LoginRequest;
 import com.cost_tracker.cost_tracker.models.User;
-import com.cost_tracker.cost_tracker.services.UserService;
+import com.cost_tracker.cost_tracker.services.UserServiceImpl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -25,14 +25,14 @@ import java.util.Optional;
 @RestController
 @RequestMapping(path = "/api/auth")
 public class AuthController {
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 
     @Autowired
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    public AuthController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
 
@@ -45,7 +45,7 @@ public class AuthController {
         try {
             // set date created property of new user being created
             newUser.setDateCreated(LocalDate.now());
-            User createNewUserResult = userService.createUser(newUser);
+            User createNewUserResult = userServiceImpl.createUser(newUser);
 
             // construct response of new user created and message
             Map<String, String> body = new HashMap<>();
@@ -67,7 +67,7 @@ public class AuthController {
     @PostMapping(path = "/login")
     public ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
         try {
-            Optional<String> loginToken = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
+            Optional<String> loginToken = userServiceImpl.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
             Map<String, String> body = new HashMap<>();
             String loginTokenCookie = loginToken.get();
             // create JSON body response with login token

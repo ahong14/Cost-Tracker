@@ -22,8 +22,13 @@ dependencies {
     implementation 'org.springframework.security:spring-security-crypto:6.0.0'
     implementation 'com.auth0:java-jwt:4.2.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'com.h2database:h2:2.1.214'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.10.0-M1'
+    testImplementation('org.junit.platform:junit-platform-launcher:1.5.2')
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.10.0-M1")
 }
 
 tasks.named('test') {
