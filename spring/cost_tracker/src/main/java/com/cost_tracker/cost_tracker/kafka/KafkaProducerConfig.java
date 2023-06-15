@@ -1,6 +1,6 @@
 package com.cost_tracker.cost_tracker.kafka;
 
-import com.cost_tracker.cost_tracker.models.BatchCostRequest;
+import com.cost_tracker.cost_tracker.models.Cost;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,7 @@ public class KafkaProducerConfig {
     private String bootstrapAddress;
 
     @Bean
-    public ProducerFactory<String, BatchCostRequest> producerFactory() {
+    public ProducerFactory<String, Cost> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -30,7 +30,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, BatchCostRequest> kafkaTemplate() {
+    public KafkaTemplate<String, Cost> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }
