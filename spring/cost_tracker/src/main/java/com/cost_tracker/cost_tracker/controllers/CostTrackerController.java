@@ -1,18 +1,21 @@
 package com.cost_tracker.cost_tracker.controllers;
 
-import com.cost_tracker.cost_tracker.models.BatchCostRequest;
 import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
+import com.cost_tracker.cost_tracker.services.CSVServiceImpl;
 import com.cost_tracker.cost_tracker.services.CostServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +24,19 @@ import java.util.Optional;
 @RestController
 @RequestMapping(path = "/api/cost")
 public class CostTrackerController {
-    private final CostServiceImpl costServiceImpl;
 
     private static final Logger logger = LoggerFactory.getLogger(CostTrackerController.class);
+
+    private final CostServiceImpl costServiceImpl;
+
+    private final CSVServiceImpl csvServiceImpl;
 
     private final int MAX_RESULTS = 50;
 
     @Autowired
-    public CostTrackerController(CostServiceImpl costServiceImpl) {
+    public CostTrackerController(CostServiceImpl costServiceImpl, CSVServiceImpl csvServiceImpl) {
         this.costServiceImpl = costServiceImpl;
+        this.csvServiceImpl = csvServiceImpl;
     }
 
     /**
@@ -96,12 +103,33 @@ public class CostTrackerController {
 
     }
 
+    /**
+     * @param file, MultipartFile, batch csv file of costs
+     * @return
+     */
     @PostMapping(path = "batchCost")
-    public ResponseEntity createBatchCost(@RequestBody BatchCostRequest batchCostRequest) {
-        boolean createBatchCostResult = costServiceImpl.createBatchCost(batchCostRequest);
-        if (!createBatchCostResult) {
-            return new ResponseEntity<>("Failed to create batch cost.", HttpStatus.BAD_REQUEST);
+    public ResponseEntity createBatchCost(@RequestParam MultipartFile file) {
+        try {
+            logger.info("file: " + file.getOriginalFilename());
+            logger.info("file size: " + file.getSize());
+            logger.info("file content type: " + file.getContentType());
+
+            // check if file uploaded is a csv
+            csvServiceImpl.isCsvFile(file.getContentType());
+
+            // get input stream of file, obtains input bytes from a file
+            InputStream inputStream = file.getInputStream();
+
+            // parse and get csv records from input stream
+            // Iterable, interface represents collection that can be iterated with for loop
+            Iterable<CSVRecord> csvRecords = csvServiceImpl.parseBatchCostCsv(inputStream);
+
+            // publish batch records to kafka topic
+            costServiceImpl.publishCostsKafka(csvRecords);
+            return new ResponseEntity<>("Batch costs processed successfully.", HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return new ResponseEntity<>("Failed to process batch csv: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("Create batch cost message queued successfully.", HttpStatus.ACCEPTED);
     }
 }

@@ -1,11 +1,11 @@
 package com.cost_tracker.cost_tracker.services;
 
 import com.cost_tracker.cost_tracker.kafka.BatchCostMessageProducer;
-import com.cost_tracker.cost_tracker.models.BatchCostRequest;
 import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
 import com.cost_tracker.cost_tracker.repositories.CostRepository;
 
+import org.apache.commons.csv.CSVRecord;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +54,8 @@ public class CostServiceImpl implements CostService {
         if (sortDir.isPresent() && sortDir.get().trim().equals("desc")) {
             sortDirection = Sort.Direction.DESC;
         }
+        // create PageRequest
+        // params: offset, limit, sort direction, sort property
         PageRequest pageRequest = PageRequest.of(getUserCostsRequest.getOffset(), getUserCostsRequest.getLimit(), sortDirection, SORT_PROPERTY);
 
         // TODO fix pagination and limit
@@ -96,14 +98,32 @@ public class CostServiceImpl implements CostService {
         costRepository.deleteUserCost(userId, costId);
     }
 
-    public boolean createBatchCost(BatchCostRequest batchCostRequest) {
-        try {
-            // send message to kafka topic
-            this.batchCostMessageProducer.sendMessage(batchCostRequest);
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return false;
+    /**
+     * @param csvRecords, collection of csv records to be published to kafka topic
+     */
+    public void publishCostsKafka(Iterable<CSVRecord> csvRecords) {
+        // iterate through csv records
+        for (CSVRecord csvRecord : csvRecords) {
+            // extract values from csv record, convert to corresponding data types for Cost
+            Double csvCostAmount = Double.parseDouble(csvRecord.get("amount"));
+            LocalDate csvCostDate = LocalDate.parse(csvRecord.get("date"));
+            long unixTimestamp = csvCostDate.toEpochSecond(LocalTime.NOON, ZoneOffset.MIN);
+            String csvCostTitle = csvRecord.get("title");
+            Integer csvCostQuantity = Integer.parseInt(csvRecord.get("quantity"));
+            Integer csvCostUserId = Integer.parseInt(csvRecord.get("userId"));
+
+            // create Cost object from extracted values
+            Cost newCost = new Cost(
+                    csvCostAmount,
+                    csvCostDate,
+                    unixTimestamp,
+                    csvCostTitle,
+                    csvCostQuantity,
+                    csvCostUserId
+            );
+
+            // publish Cost record to kafka topic
+            this.batchCostMessageProducer.sendMessage(newCost);
         }
     }
 }
