@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BatchCostMessageProducer {
-    private static final Logger logger = LogManager.getLogger(CostServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(BatchCostMessageProducer.class);
     private KafkaTemplate<String, Cost> kafkaTemplate;
 
     @Value(value = "${topic.name.producer}")

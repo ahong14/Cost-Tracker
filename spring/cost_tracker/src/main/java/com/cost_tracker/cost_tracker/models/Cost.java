@@ -18,9 +18,14 @@ public class Cost {
     private long date_unix;
     private String title;
     private Integer quantity;
+
     @Column(name = "user_id")
     private Integer userId;
 
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 
     public Cost(Double amount, LocalDate date, long date_unix, String title, Integer quantity, Integer userId) {

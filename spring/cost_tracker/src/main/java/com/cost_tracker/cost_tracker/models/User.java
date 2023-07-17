@@ -3,6 +3,8 @@ package com.cost_tracker.cost_tracker.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Set;
 
 @Entity
 @Table
@@ -30,6 +32,9 @@ public class User {
 
     @Column(name = "date_created")
     private LocalDate dateCreated;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Cost> costs;
 
     public User() {
 
