@@ -22,15 +22,19 @@ import java.util.Optional;
 @Service
 public class CostServiceImpl implements CostService {
     private static final Logger logger = LogManager.getLogger(CostServiceImpl.class);
-    private final CostRepository costRepository;
-    private final BatchCostMessageProducer batchCostMessageProducer;
+    private CostRepository costRepository;
+    private BatchCostMessageProducer batchCostMessageProducer;
 
     private static final String SORT_PROPERTY = "date_unix";
 
     @Autowired
-    public CostServiceImpl(CostRepository costRepository, BatchCostMessageProducer batchCostMessageProducer) {
-        this.costRepository = costRepository;
-        this.batchCostMessageProducer = batchCostMessageProducer;
+    public void setCostRepository(CostRepository repository) {
+        this.costRepository = repository;
+    }
+
+    @Autowired
+    public void setBatchCostMessageProducer(BatchCostMessageProducer producer) {
+        this.batchCostMessageProducer = producer;
     }
 
     /**

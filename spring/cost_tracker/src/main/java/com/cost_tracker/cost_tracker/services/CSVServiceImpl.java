@@ -43,8 +43,8 @@ public class CSVServiceImpl implements CSVService {
         // CSVParser, pass file reader as param, buffer of characters from csv input stream
         // CSVFormat.DEFAULT, sets delimiter to , quote to ", record separator to \n
         // first record set to header
-        // TODO update deprecated methods
-        CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
+        CSVFormat csvFormat = CSVFormat.Builder.create().setHeader().setSkipHeaderRecord(true).setIgnoreHeaderCase(true).setTrim(true).build();
+        CSVParser csvParser = new CSVParser(fileReader, csvFormat);
         // return list of csv records parsed
         Iterable<CSVRecord> csvRecords = csvParser.getRecords();
         return csvRecords;

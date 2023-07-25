@@ -8,3 +8,6 @@ runGradle:
 
 runDockerCompose:
 	docker-compose up -d
+
+runTests:
+	gradle test

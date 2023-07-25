@@ -29,9 +29,24 @@ dependencies {
     testImplementation 'com.h2database:h2:2.1.214'
     testImplementation 'org.junit.vintage:junit-vintage-engine:5.10.0-M1'
     testImplementation('org.junit.platform:junit-platform-launcher:1.5.2')
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.10.0-RC1')
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.10.0-M1")
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+
+    maxHeapSize = '1G'
+}
+
+tasks.withType(JavaCompile) {
+    options.deprecation = true
+}
+
+tasks.withType(Test) {
+    testLogging {
+        exceptionFormat "full"
+        events "started", "skipped", "passed", "failed"
+        showStandardStreams true
+    }
 }

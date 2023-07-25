@@ -5,6 +5,7 @@ import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
 import com.cost_tracker.cost_tracker.services.CSVServiceImpl;
 import com.cost_tracker.cost_tracker.services.CostServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,13 +25,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,7 +50,8 @@ public class CostTrackerControllerTests {
 
     @Test
     public void getUserCosts() throws Exception {
-        Cost testCost = new Cost();
+        LocalDate localDate = LocalDate.now();
+        Cost testCost = new Cost(1, 10.00, localDate, 0, "test cost", 1, 1);
         List<Cost> costs = Arrays.asList(testCost);
         given(costService.getUserCosts(any(GetUserCostsRequest.class))).willReturn(Optional.ofNullable(costs));
 
@@ -64,5 +65,46 @@ public class CostTrackerControllerTests {
         MockHttpServletResponse mockResponse = result.getResponse();
         String contentType = mockResponse.getContentType();
         assert (contentType == MediaType.APPLICATION_JSON.toString());
+    }
+
+    @Test
+    public void createUserCost() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        LocalDate localDate = LocalDate.now();
+        Map<String, Object> body = new HashMap<>();
+        body.put("amount", "10.00");
+        body.put("quantity", "1");
+        body.put("title", "test cost");
+        body.put("date", localDate.toString());
+        body.put("user_id", 1);
+
+
+        Cost testCost = new Cost(1, 10.00, localDate, 0, "test cost", 1, 1);
+        given(costService.createCost(any(Cost.class))).willReturn(testCost);
+
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+                        .post("/api/cost")
+                        .content(objectMapper.writeValueAsString(body))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        MockHttpServletResponse mockResponse = result.getResponse();
+        String contentType = mockResponse.getContentType();
+        assert (contentType == MediaType.APPLICATION_JSON.toString());
+    }
+
+    @Test
+    public void deleteUserCost() throws Exception {
+        doNothing().when(costService).deleteCost(anyInt(), anyInt());
+        MvcResult result = mvc.perform(MockMvcRequestBuilders
+                        .delete("/api/cost?userId=1&costId=1")
+                        .contentType(MediaType.TEXT_PLAIN))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        MockHttpServletResponse mockResponse = result.getResponse();
+        assert (mockResponse.getContentType().equals("text/plain;charset=UTF-8"));
+        assert (mockResponse.getContentAsString().equals("Cost deleted successfully"));
     }
 }
