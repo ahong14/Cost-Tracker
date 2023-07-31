@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
+import java.util.Date;
 import java.util.Optional;
 
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -50,7 +51,7 @@ public class UserServiceImplIntegrationTest {
 
         when(userRepository.findUserByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
         when(userRepository.findUserByEmail(testUser2.getEmail())).thenReturn(Optional.ofNullable(null));
-        when(userRepository.save(any(User.class))).thenReturn(new User());
+        when(userRepository.save(any(User.class))).then(returnsFirstArg());
     }
 
 
@@ -67,12 +68,19 @@ public class UserServiceImplIntegrationTest {
     public void creatingUserNotFoundEmailCreated() {
         User testUser2 = new User(2, "Test", "Test Lastname", "test2@mail.com", "test password");
         User createdUser = userService.createUser(testUser2);
+        verify(userRepository, times(1)).findUserByEmail(testUser2.getEmail());
+        verify(userRepository, times(1)).save(testUser2);
         assert (createdUser != null);
     }
 
     @Test
     public void createUserSuccess() {
-        User testUser = new User(1, "Test", "Test Lastname", "test@mail.com", "test password");
+        User testUser3 = new User(2, "Test", "Test Lastname", "test3@mail.com", "test password");
+        User savedUser = userService.createUser(testUser3);
+        assert (savedUser != null);
+        assert (savedUser.getEmail() == testUser3.getEmail());
+        assert (savedUser.getFirst_name().equals(testUser3.getFirst_name()));
+        assert (savedUser.getLast_name().equals(testUser3.getLast_name()));
     }
 
     @Test
@@ -80,6 +88,7 @@ public class UserServiceImplIntegrationTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             User testUser2 = new User(2, "Test", "Test Lastname", "test2@mail.com", "test password");
             userService.loginUser(testUser2.getEmail(), testUser2.getPassword());
+            verify(userRepository, times(1)).findUserByEmail(testUser2.getEmail());
         });
 
         assertEquals("User email not found", exception.getMessage());
