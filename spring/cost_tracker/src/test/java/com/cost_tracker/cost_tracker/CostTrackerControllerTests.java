@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -64,7 +65,7 @@ public class CostTrackerControllerTests {
 
         MockHttpServletResponse mockResponse = result.getResponse();
         String contentType = mockResponse.getContentType();
-        assert (contentType == MediaType.APPLICATION_JSON.toString());
+        assertEquals(contentType, MediaType.APPLICATION_JSON.toString());
     }
 
     @Test

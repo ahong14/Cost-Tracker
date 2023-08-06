@@ -83,4 +83,14 @@ public class UserServiceImpl implements UserService {
                 .withIssuer("Cost Tracker Issuer")
                 .sign(Algorithm.HMAC256(jwt_secret)));
     }
+
+    @Override
+    /**
+     * @param userId, int user id of user being searched for
+     * @return User, found user based on user id
+     * @throws NoSuchElementException
+     */
+    public User getUser(int userId) {
+        return userRepository.findById(userId).get();
+    }
 }

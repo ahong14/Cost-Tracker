@@ -17,6 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Mockito.*;
 
@@ -51,12 +53,12 @@ public class CostServiceImplIntegrationTest {
         Cost testCost = new Cost(1, 10.00, localDate, 0, "test cost", 1, 1);
         Cost createdCost = costService.createCost(testCost);
         verify(costRepository, times(1)).save(createdCost);
-        assert (createdCost != null);
-        assert (createdCost.getId() == testCost.getId());
-        assert (createdCost.getTitle().equals(testCost.getTitle()));
-        assert (createdCost.getAmount() == testCost.getAmount());
-        assert (createdCost.getQuantity() == testCost.getQuantity());
-        assert (createdCost.getUser_id() == testCost.getUser_id());
-        assert (testCost.getDate() != null);
+        assertNotEquals(createdCost, null);
+        assertEquals(createdCost.getId(), testCost.getId());
+        assertEquals(createdCost.getTitle(), testCost.getTitle());
+        assertEquals(createdCost.getAmount(), testCost.getAmount());
+        assertEquals(createdCost.getQuantity(), testCost.getQuantity());
+        assertEquals(createdCost.getUser_id(), testCost.getUser_id());
+        assertNotEquals(testCost.getDate(), null);
     }
 }

@@ -24,7 +24,7 @@ public class Cost {
 
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_cost_id")
     private User user;
 
 

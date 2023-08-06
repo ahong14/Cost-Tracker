@@ -51,7 +51,7 @@ public class AuthController {
             Map<String, String> body = new HashMap<>();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
-            body.put("user", objectMapper.writeValueAsString(createNewUserResult));
+            body.put("user", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(createNewUserResult));
             body.put("message", "User created successfully");
             return new ResponseEntity<>(body, HttpStatus.OK);
         } catch (Exception e) {

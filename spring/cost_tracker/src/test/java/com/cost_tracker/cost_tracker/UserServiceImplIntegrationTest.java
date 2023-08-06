@@ -13,13 +13,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
-import java.util.Date;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -46,17 +43,18 @@ public class UserServiceImplIntegrationTest {
     public void setUp() {
         User testUser = new User(1, "Test", "Test Lastname", "test@mail.com", "test password");
         User testUser2 = new User(2, "Test", "Test Lastname", "test2@mail.com", "test password");
-        User testUser3 = new User(2, "Test", "Test Lastname", "test3@mail.com", "test password");
+        User testUser3 = new User(3, "Test", "Test Lastname", "test3@mail.com", "test password");
 
 
         when(userRepository.findUserByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
         when(userRepository.findUserByEmail(testUser2.getEmail())).thenReturn(Optional.ofNullable(null));
         when(userRepository.save(any(User.class))).then(returnsFirstArg());
+        when(userRepository.findById(testUser3.getId())).thenReturn(Optional.of(testUser3));
     }
 
 
     @Test
-    public void creatingUserFoundEmailExceptionThrown() {
+    public void shouldThrowExceptionWhenCreatingUserFoundEmail() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             User testUser = new User(1, "Test", "Test Lastname", "test@mail.com", "test password");
             userService.createUser(testUser);
@@ -70,21 +68,21 @@ public class UserServiceImplIntegrationTest {
         User createdUser = userService.createUser(testUser2);
         verify(userRepository, times(1)).findUserByEmail(testUser2.getEmail());
         verify(userRepository, times(1)).save(testUser2);
-        assert (createdUser != null);
+        assertNotEquals(createdUser, null);
     }
 
     @Test
     public void createUserSuccess() {
-        User testUser3 = new User(2, "Test", "Test Lastname", "test3@mail.com", "test password");
+        User testUser3 = new User(3, "Test", "Test Lastname", "test3@mail.com", "test password");
         User savedUser = userService.createUser(testUser3);
-        assert (savedUser != null);
-        assert (savedUser.getEmail() == testUser3.getEmail());
-        assert (savedUser.getFirst_name().equals(testUser3.getFirst_name()));
-        assert (savedUser.getLast_name().equals(testUser3.getLast_name()));
+        assertNotEquals(savedUser, null);
+        assertEquals(savedUser.getEmail(), testUser3.getEmail());
+        assertEquals(savedUser.getFirst_name(), testUser3.getFirst_name());
+        assertEquals(savedUser.getLast_name(), testUser3.getLast_name());
     }
 
     @Test
-    public void loginUserNotFoundExceptionThrown() {
+    public void shouldThrowExceptionWhenLoginUserNotFound() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             User testUser2 = new User(2, "Test", "Test Lastname", "test2@mail.com", "test password");
             userService.loginUser(testUser2.getEmail(), testUser2.getPassword());
@@ -92,5 +90,16 @@ public class UserServiceImplIntegrationTest {
         });
 
         assertEquals("User email not found", exception.getMessage());
+    }
+
+    @Test
+    public void shouldGetFoundUserById() {
+        User testUser3 = new User(3, "Test", "Test Lastname", "test3@mail.com", "test password");
+        User foundUser = userService.getUser(testUser3.getId());
+        verify(userRepository, times(1)).findById(testUser3.getId());
+        assertNotEquals(foundUser, null);
+        assertEquals(foundUser.getEmail(), testUser3.getEmail());
+        assertEquals(foundUser.getFirst_name(), testUser3.getFirst_name());
+        assertEquals(foundUser.getLast_name(), testUser3.getLast_name());
     }
 }

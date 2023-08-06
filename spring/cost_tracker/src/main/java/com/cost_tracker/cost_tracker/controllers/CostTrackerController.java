@@ -77,7 +77,7 @@ public class CostTrackerController {
             Map<String, String> body = new HashMap<>();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
-            body.put("cost", objectMapper.writeValueAsString(createCostResult));
+            body.put("cost", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(createCostResult));
             body.put("message", "Cost created successfully");
             return new ResponseEntity<>(body, HttpStatus.OK);
         } catch (Exception e) {

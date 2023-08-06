@@ -1,33 +1,37 @@
 package com.cost_tracker.cost_tracker.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Set;
 
 @Entity
 @Table
 public class User {
     @Id
-    @SequenceGenerator(
-            name = "user_sequence",
-            sequenceName = "user_sequence",
-            allocationSize = 1
-    )
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "user_sequence"
+            strategy = GenerationType.IDENTITY
     )
-
     private Integer id;
 
     @Column(name = "first_name")
+    @Size(min = 2)
     private String firstName;
 
     @Column(name = "last_name")
+    @Size(min = 2)
     private String lastName;
+
+    @Email
+    @NotNull
     private String email;
+
+    @NotNull
+    @JsonIgnore
     private String password;
 
     @Column(name = "date_created")
