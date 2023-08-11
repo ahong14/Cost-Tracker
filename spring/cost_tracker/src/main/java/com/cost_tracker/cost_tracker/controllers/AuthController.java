@@ -4,6 +4,7 @@ import com.cost_tracker.cost_tracker.models.LoginRequest;
 import com.cost_tracker.cost_tracker.models.User;
 import com.cost_tracker.cost_tracker.services.UserServiceImpl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
@@ -41,23 +42,18 @@ public class AuthController {
      * @return response, status code and body
      */
     @PostMapping(path = "/signup")
-    public ResponseEntity createNewUser(@RequestBody User newUser) {
-        try {
-            // set date created property of new user being created
-            newUser.setDateCreated(LocalDate.now());
-            User createNewUserResult = userServiceImpl.createUser(newUser);
+    public ResponseEntity createNewUser(@RequestBody User newUser) throws JsonProcessingException {
+        // set date created property of new user being created
+        newUser.setDateCreated(LocalDate.now());
+        User createNewUserResult = userServiceImpl.createUser(newUser);
 
-            // construct response of new user created and message
-            Map<String, String> body = new HashMap<>();
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.registerModule(new JavaTimeModule());
-            body.put("user", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(createNewUserResult));
-            body.put("message", "User created successfully");
-            return new ResponseEntity<>(body, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return new ResponseEntity<>("Failed to create new user: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        // construct response of new user created and message
+        Map<String, String> body = new HashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        body.put("user", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(createNewUserResult));
+        body.put("message", "User created successfully");
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     /**
@@ -66,20 +62,15 @@ public class AuthController {
      */
     @PostMapping(path = "/login")
     public ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
-        try {
-            Optional<String> loginToken = userServiceImpl.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
-            Map<String, String> body = new HashMap<>();
-            String loginTokenCookie = loginToken.get();
-            // create JSON body response with login token
-            body.put("loginToken", loginTokenCookie);
-            body.put("message", "Login successful");
-            HttpHeaders loginHeaders = new HttpHeaders();
-            loginHeaders.add("loginToken", loginTokenCookie);
+        Optional<String> loginToken = userServiceImpl.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
+        Map<String, String> body = new HashMap<>();
+        String loginTokenCookie = loginToken.get();
+        // create JSON body response with login token
+        body.put("loginToken", loginTokenCookie);
+        body.put("message", "Login successful");
+        HttpHeaders loginHeaders = new HttpHeaders();
+        loginHeaders.add("loginToken", loginTokenCookie);
 
-            return new ResponseEntity<>(body, loginHeaders, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error logging in: " + e.getMessage());
-            return new ResponseEntity<>("Error logging in: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(body, loginHeaders, HttpStatus.OK);
     }
 }

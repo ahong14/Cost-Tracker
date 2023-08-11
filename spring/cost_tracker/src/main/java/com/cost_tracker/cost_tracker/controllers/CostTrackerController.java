@@ -4,6 +4,7 @@ import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
 import com.cost_tracker.cost_tracker.services.CSVServiceImpl;
 import com.cost_tracker.cost_tracker.services.CostServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.csv.CSVRecord;
@@ -53,16 +54,11 @@ public class CostTrackerController {
                                        @RequestParam(required = false) Integer fromDate,
                                        @RequestParam(required = false) Integer toDate,
                                        @RequestParam(required = false) String sortDir) {
-        try {
-            logger.info("building getUserCostsRequest");
-            GetUserCostsRequest getUserCostsRequest = new GetUserCostsRequest(userId, 0, MAX_RESULTS, Optional.ofNullable(fromDate), Optional.ofNullable(toDate), Optional.ofNullable(title), Optional.ofNullable(sortDir));
-            logger.info(getUserCostsRequest.toString());
-            Optional<List<Cost>> userCosts = costServiceImpl.getUserCosts(getUserCostsRequest);
-            return new ResponseEntity<>(userCosts, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Exception getting costs: " + e.getMessage());
-            return new ResponseEntity<>("Exception getting costs: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        logger.info("building getUserCostsRequest");
+        GetUserCostsRequest getUserCostsRequest = new GetUserCostsRequest(userId, 0, MAX_RESULTS, Optional.ofNullable(fromDate), Optional.ofNullable(toDate), Optional.ofNullable(title), Optional.ofNullable(sortDir));
+        logger.info(getUserCostsRequest.toString());
+        Optional<List<Cost>> userCosts = costServiceImpl.getUserCosts(getUserCostsRequest);
+        return new ResponseEntity<>(userCosts, HttpStatus.OK);
     }
 
     /**
@@ -70,20 +66,15 @@ public class CostTrackerController {
      * @return response, status code and body
      */
     @PostMapping
-    public ResponseEntity createCost(@RequestBody Cost newCost) {
-        try {
-            Cost createCostResult = costServiceImpl.createCost(newCost);
-            // create response with cost and message
-            Map<String, String> body = new HashMap<>();
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.registerModule(new JavaTimeModule());
-            body.put("cost", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(createCostResult));
-            body.put("message", "Cost created successfully");
-            return new ResponseEntity<>(body, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return new ResponseEntity<>("Failed to create cost: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity createCost(@RequestBody Cost newCost) throws JsonProcessingException {
+        Cost createCostResult = costServiceImpl.createCost(newCost);
+        // create response with cost and message
+        Map<String, String> body = new HashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        body.put("cost", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(createCostResult));
+        body.put("message", "Cost created successfully");
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     /**
@@ -93,14 +84,8 @@ public class CostTrackerController {
      */
     @DeleteMapping
     public ResponseEntity deleteCost(@RequestParam int userId, @RequestParam int costId) {
-        try {
-            costServiceImpl.deleteCost(userId, costId);
-            return new ResponseEntity<>("Cost deleted successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return new ResponseEntity<>("Failed to delete cost: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-
+        costServiceImpl.deleteCost(userId, costId);
+        return new ResponseEntity<>("Cost deleted successfully", HttpStatus.OK);
     }
 
     /**

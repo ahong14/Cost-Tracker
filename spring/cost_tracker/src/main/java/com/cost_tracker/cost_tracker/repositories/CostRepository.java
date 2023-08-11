@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CostRepository extends JpaRepository<Cost, Integer> {
+    @Query(value = "SELECT * FROM cost WHERE user_id = :userId AND id = :id", nativeQuery = true)
+    Optional<Cost> findCostByUserIdAndId(Integer userId, Integer id);
+
     // get costs by user id ordered by date desc
     @Query(value = "SELECT * FROM cost WHERE user_id = :userId", nativeQuery = true)
     Optional<List<Cost>> findCostsByUserId(Integer userId, Pageable pageable);

@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -99,6 +100,11 @@ public class CostServiceImpl implements CostService {
      * @param costId, id of cost being deleted
      */
     public void deleteCost(int userId, int costId) {
+        Optional<Cost> foundUserCost = costRepository.findCostByUserIdAndId(userId, costId);
+        if (foundUserCost.isEmpty()) {
+            logger.error("Cost not found for user: " + userId);
+            throw new NoSuchElementException("Cost not found for user");
+        }
         costRepository.deleteUserCost(userId, costId);
     }
 
