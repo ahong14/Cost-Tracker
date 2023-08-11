@@ -92,7 +92,9 @@ public class CostTrackerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "cost deleted successfully",
                     content = {@Content(mediaType = "text/plain;charset=UTF-8")}),
-            @ApiResponse(responseCode = "400", description = "create cost unsuccessful",
+            @ApiResponse(responseCode = "400", description = "delete cost unsuccessful",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))}),
+            @ApiResponse(responseCode = "404", description = "cost not found for id and user id",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))})
     })
     /**

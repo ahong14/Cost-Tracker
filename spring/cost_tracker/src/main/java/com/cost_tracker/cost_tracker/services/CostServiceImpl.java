@@ -133,6 +133,7 @@ public class CostServiceImpl implements CostService {
             );
 
             // publish Cost record to kafka topic
+            // TODO create service that will read from kafka topics to process messages
             this.batchCostMessageProducer.sendMessage(newCost);
         }
     }
