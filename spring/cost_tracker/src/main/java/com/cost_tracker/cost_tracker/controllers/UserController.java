@@ -13,10 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
@@ -45,10 +42,11 @@ public class UserController {
      *
      * @return response, corresponding user found
      */
-    @GetMapping
-    public ResponseEntity getUser(@RequestParam int userId) {
+    @GetMapping("{userId}")
+    public ResponseEntity getUser(@PathVariable String userId) {
         logger.info("Getting user for user id: " + userId);
-        User foundUser = this.userServiceImpl.getUser(userId);
+        User foundUser = this.userServiceImpl.getUser(Integer.parseInt(userId));
+        logger.info("found user: " + foundUser);
         return new ResponseEntity<>(foundUser, HttpStatus.OK);
     }
 }
