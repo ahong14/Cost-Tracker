@@ -27,7 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.Optional;
 
+// @RestController - indicates annotation for both @Controller and @ResponseBody
+// @Controller - indicates class and Spring bean is a controller
+// @ResponseBody - object returned is automatically serialized into JSON and passed into HttpResponse object
 @RestController
+// @RequestMapping - annotation used to map requests to controller methods
 @RequestMapping(path = "/api/auth")
 public class AuthController {
     private final UserServiceImpl userServiceImpl;

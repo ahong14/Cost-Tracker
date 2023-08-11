@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+// @Service annotation, indicates Spring bean provides business functionalities
 @Service
 public class CostServiceImpl implements CostService {
     private static final Logger logger = LogManager.getLogger(CostServiceImpl.class);

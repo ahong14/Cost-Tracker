@@ -20,17 +20,14 @@ public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
 
+    // @Value, indicates default value for given property
     @Value("${jwt_secret}")
     private String jwt_secret;
 
     public UserServiceImpl() {
     }
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
+    // @Autowired annotation, dependencies injected automatically via Spring framework
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;

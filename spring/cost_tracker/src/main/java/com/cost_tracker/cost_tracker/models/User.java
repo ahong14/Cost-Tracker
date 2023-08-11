@@ -19,17 +19,21 @@ public class User {
     private Integer id;
 
     @Column(name = "first_name")
+    // @Size, min = 2, element size must be a minimum of 2, validation
     @Size(min = 2)
     private String firstName;
 
     @Column(name = "last_name")
+    // @Size, min = 2, element size must be a minimum of 2, validation
     @Size(min = 2)
     private String lastName;
 
+    // @Email, string must be a well formatted email string
     @Email
     @NotNull
     private String email;
 
+    // @NotNull, value must not be null
     @NotNull
     // @JsonProperty, access = JsonProperty.Access.WRITE_ONLY
     // JsonProperty.Access.WRITE_ONLY, property only accessible during deserialization

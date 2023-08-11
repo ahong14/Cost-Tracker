@@ -4,10 +4,15 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
+// @Entity, indicates JPA entity
+// @Table, specifies primary table for given entity
 @Entity
 @Table
 public class Cost {
+    // @Id - specifies primary key of entity
     @Id
+    // @GeneratedValue, used to generate primary keys for @Id
+    // strategy - GenerationType.IDENTITY, auto incremented database value for primary key
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
     )
@@ -18,7 +23,45 @@ public class Cost {
     private long date_unix;
     private String title;
     private Integer quantity;
+    private String category;
+    
+    public String getCategory() {
+        return category;
+    }
 
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Cost(Integer id, Double amount, LocalDate date, long date_unix, String title, Integer quantity, String category, Integer userId, User user) {
+        this.id = id;
+        this.amount = amount;
+        this.date = date;
+        this.date_unix = date_unix;
+        this.title = title;
+        this.quantity = quantity;
+        this.category = category;
+        this.userId = userId;
+        this.user = user;
+    }
+
+    // @Column, map property to column name in table
     @Column(name = "user_id")
     private Integer userId;
 

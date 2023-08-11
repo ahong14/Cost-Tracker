@@ -63,10 +63,12 @@ public class CostTrackerController {
                                        @RequestParam(required = false) Integer fromDate,
                                        @RequestParam(required = false) Integer toDate,
                                        @RequestParam(required = false) String sortDir) {
+        // @RequestParam annotation indicates values from query params
         logger.info("building getUserCostsRequest");
         GetUserCostsRequest getUserCostsRequest = new GetUserCostsRequest(userId, 0, MAX_RESULTS, Optional.ofNullable(fromDate), Optional.ofNullable(toDate), Optional.ofNullable(title), Optional.ofNullable(sortDir));
         logger.info(getUserCostsRequest.toString());
         Optional<List<Cost>> userCosts = costServiceImpl.getUserCosts(getUserCostsRequest);
+        // ResponseEntity, represents whole HTTP response, status code, headers, body
         return new ResponseEntity<>(userCosts, HttpStatus.OK);
     }
 
@@ -83,6 +85,7 @@ public class CostTrackerController {
      */
     @PostMapping
     public ResponseEntity createCost(@RequestBody Cost newCost) {
+        // @RequestBody annotation, automatic deserialization of inbound HttpRequest body
         Cost createCostResult = costServiceImpl.createCost(newCost);
         return new ResponseEntity<>(createCostResult, HttpStatus.OK);
     }

@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -101,5 +102,13 @@ public class UserServiceImplIntegrationTest {
         assertEquals(foundUser.getEmail(), testUser3.getEmail());
         assertEquals(foundUser.getFirst_name(), testUser3.getFirst_name());
         assertEquals(foundUser.getLast_name(), testUser3.getLast_name());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenUserNotFound() {
+        assertThrows(NoSuchElementException.class, () -> {
+            User testUser3 = new User(4, "Test4", "Test Lastname", "test4@mail.com", "test password");
+            userService.getUser(testUser3.getId());
+        });
     }
 }

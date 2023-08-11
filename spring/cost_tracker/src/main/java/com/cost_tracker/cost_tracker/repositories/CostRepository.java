@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+// repository of type Cost
+// mapped by id of type Integer
 public interface CostRepository extends JpaRepository<Cost, Integer> {
     @Query(value = "SELECT * FROM cost WHERE user_id = :userId AND id = :id", nativeQuery = true)
     Optional<Cost> findCostByUserIdAndId(Integer userId, Integer id);
