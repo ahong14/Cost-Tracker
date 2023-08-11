@@ -1,12 +1,16 @@
 package com.cost_tracker.cost_tracker.controllers;
 
+import com.cost_tracker.cost_tracker.exception.ErrorMessage;
 import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
 import com.cost_tracker.cost_tracker.services.CSVServiceImpl;
 import com.cost_tracker.cost_tracker.services.CostServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -40,6 +42,13 @@ public class CostTrackerController {
         this.csvServiceImpl = csvServiceImpl;
     }
 
+    @Operation(summary = "get costs for user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "got user costs successfully",
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Cost.class)))}),
+            @ApiResponse(responseCode = "400", description = "get costs for user unsuccessful",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))})
+    })
     /**
      * @param userId,   user id
      * @param title,    title of cost
@@ -61,22 +70,31 @@ public class CostTrackerController {
         return new ResponseEntity<>(userCosts, HttpStatus.OK);
     }
 
+    @Operation(summary = "create cost for user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "created cost successfully",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Cost.class))}),
+            @ApiResponse(responseCode = "400", description = "create cost unsuccessful",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))})
+    })
     /**
      * @param newCost, request body converted to Cost object
      * @return response, status code and body
      */
     @PostMapping
-    public ResponseEntity createCost(@RequestBody Cost newCost) throws JsonProcessingException {
+    public ResponseEntity createCost(@RequestBody Cost newCost) {
         Cost createCostResult = costServiceImpl.createCost(newCost);
-        // create response with cost and message
-        Map<String, String> body = new HashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        body.put("cost", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(createCostResult));
-        body.put("message", "Cost created successfully");
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        return new ResponseEntity<>(createCostResult, HttpStatus.OK);
     }
 
+
+    @Operation(summary = "delete cost for user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "cost deleted successfully",
+                    content = {@Content(mediaType = "text/plain;charset=UTF-8")}),
+            @ApiResponse(responseCode = "400", description = "create cost unsuccessful",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))})
+    })
     /**
      * @param userId, user id
      * @param costId, cost id of cost being deleted

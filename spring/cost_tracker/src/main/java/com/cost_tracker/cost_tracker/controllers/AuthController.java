@@ -1,12 +1,18 @@
 package com.cost_tracker.cost_tracker.controllers;
 
+import com.cost_tracker.cost_tracker.exception.ErrorMessage;
+import com.cost_tracker.cost_tracker.models.CreateUserResponse;
 import com.cost_tracker.cost_tracker.models.LoginRequest;
+import com.cost_tracker.cost_tracker.models.LoginResponse;
 import com.cost_tracker.cost_tracker.models.User;
 import com.cost_tracker.cost_tracker.services.UserServiceImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -37,6 +41,13 @@ public class AuthController {
     }
 
 
+    @Operation(summary = "create user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "user created successfully",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "create user unsuccessful",
+                    content = @Content)
+    })
     /**
      * @param newUser, user object containing properties to create new user
      * @return response, status code and body
@@ -48,14 +59,19 @@ public class AuthController {
         User createNewUserResult = userServiceImpl.createUser(newUser);
 
         // construct response of new user created and message
-        Map<String, String> body = new HashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        body.put("user", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(createNewUserResult));
-        body.put("message", "User created successfully");
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        CreateUserResponse createUserResponse = new CreateUserResponse(createNewUserResult, true);
+        return new ResponseEntity<>(createUserResponse, HttpStatus.OK);
     }
 
+    @Operation(summary = "login user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "login user successful",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "login user unsuccessful",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "login user not found",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))})
+    })
     /**
      * @param loginRequest, contains email and password of user logging in
      * @return response, status code and body, header with loginToken
@@ -63,14 +79,14 @@ public class AuthController {
     @PostMapping(path = "/login")
     public ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
         Optional<String> loginToken = userServiceImpl.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
-        Map<String, String> body = new HashMap<>();
         String loginTokenCookie = loginToken.get();
         // create JSON body response with login token
-        body.put("loginToken", loginTokenCookie);
-        body.put("message", "Login successful");
+        LoginResponse loginResponse = new LoginResponse(loginTokenCookie, true);
         HttpHeaders loginHeaders = new HttpHeaders();
+
+        // add header to login response containing JWT
         loginHeaders.add("loginToken", loginTokenCookie);
 
-        return new ResponseEntity<>(body, loginHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(loginResponse, loginHeaders, HttpStatus.OK);
     }
 }

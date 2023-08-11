@@ -1,6 +1,6 @@
 package com.cost_tracker.cost_tracker.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -31,10 +31,15 @@ public class User {
     private String email;
 
     @NotNull
-    @JsonIgnore
+    // @JsonProperty, access = JsonProperty.Access.WRITE_ONLY
+    // JsonProperty.Access.WRITE_ONLY, property only accessible during deserialization
+    // value will not be part of the response
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name = "date_created")
+    // @JsonProperty value = , serialize key into value provided
+    @JsonProperty(value = "date_created")
     private LocalDate dateCreated;
 
     @OneToMany(mappedBy = "user")

@@ -11,3 +11,7 @@ React, TypeScript, GraphQL
 ### Backend:
 
 Spring Boot, MySQL, Kafka
+
+### Swagger URI
+
+/swagger-ui/index.html
