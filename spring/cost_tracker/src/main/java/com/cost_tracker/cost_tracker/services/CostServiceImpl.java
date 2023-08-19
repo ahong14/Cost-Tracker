@@ -5,9 +5,10 @@ import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
 import com.cost_tracker.cost_tracker.repositories.CostRepository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -23,7 +24,7 @@ import java.util.Optional;
 // @Service annotation, indicates Spring bean provides business functionalities
 @Service
 public class CostServiceImpl implements CostService {
-    private static final Logger logger = LogManager.getLogger(CostServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private CostRepository costRepository;
     private BatchCostMessageProducer batchCostMessageProducer;
 
@@ -112,7 +113,7 @@ public class CostServiceImpl implements CostService {
     /**
      * @param csvRecords, collection of csv records to be published to kafka topic
      */
-    public void publishCostsKafka(Iterable<CSVRecord> csvRecords) {
+    public void publishCostsKafka(Iterable<CSVRecord> csvRecords) throws JsonProcessingException {
         // iterate through csv records
         for (CSVRecord csvRecord : csvRecords) {
             // extract values from csv record, convert to corresponding data types for Cost
@@ -134,7 +135,6 @@ public class CostServiceImpl implements CostService {
             );
 
             // publish Cost record to kafka topic
-            // TODO create service that will read from kafka topics to process messages
             this.batchCostMessageProducer.sendMessage(newCost);
         }
     }

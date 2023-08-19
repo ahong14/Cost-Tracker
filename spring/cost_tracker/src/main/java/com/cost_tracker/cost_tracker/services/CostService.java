@@ -2,6 +2,7 @@ package com.cost_tracker.cost_tracker.services;
 
 import com.cost_tracker.cost_tracker.models.Cost;
 import com.cost_tracker.cost_tracker.models.GetUserCostsRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.List;
@@ -14,5 +15,5 @@ public interface CostService {
 
     void deleteCost(int userId, int costId);
 
-    void publishCostsKafka(Iterable<CSVRecord> csvRecords);
+    void publishCostsKafka(Iterable<CSVRecord> csvRecords) throws JsonProcessingException;
 }

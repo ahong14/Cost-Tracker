@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -116,28 +117,23 @@ public class CostTrackerController {
      * @return
      */
     @PostMapping(path = "batchCost")
-    public ResponseEntity createBatchCost(@RequestParam MultipartFile file) {
-        try {
-            logger.info("file: " + file.getOriginalFilename());
-            logger.info("file size: " + file.getSize());
-            logger.info("file content type: " + file.getContentType());
+    public ResponseEntity createBatchCost(@RequestParam MultipartFile file) throws IOException {
+        logger.info("file: " + file.getOriginalFilename());
+        logger.info("file size: " + file.getSize());
+        logger.info("file content type: " + file.getContentType());
 
-            // check if file uploaded is a csv
-            csvServiceImpl.isCsvFile(file.getContentType());
+        // check if file uploaded is a csv
+        csvServiceImpl.isCsvFile(file.getContentType());
 
-            // get input stream of file, obtains input bytes from a file
-            InputStream inputStream = file.getInputStream();
+        // get input stream of file, obtains input bytes from a file
+        InputStream inputStream = file.getInputStream();
 
-            // parse and get csv records from input stream
-            // Iterable, interface represents collection that can be iterated with for loop
-            Iterable<CSVRecord> csvRecords = csvServiceImpl.parseBatchCostCsv(inputStream);
+        // parse and get csv records from input stream
+        // Iterable, interface represents collection that can be iterated with for loop
+        Iterable<CSVRecord> csvRecords = csvServiceImpl.parseBatchCostCsv(inputStream);
 
-            // publish batch records to kafka topic
-            costServiceImpl.publishCostsKafka(csvRecords);
-            return new ResponseEntity<>("Batch costs processed successfully.", HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return new ResponseEntity<>("Failed to process batch csv: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        // publish batch records to kafka topic
+        costServiceImpl.publishCostsKafka(csvRecords);
+        return new ResponseEntity<>("Batch costs processed successfully.", HttpStatus.ACCEPTED);
     }
 }

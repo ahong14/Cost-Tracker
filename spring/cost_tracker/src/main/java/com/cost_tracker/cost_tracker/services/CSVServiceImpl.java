@@ -4,8 +4,8 @@ package com.cost_tracker.cost_tracker.services;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 
 @Service
 public class CSVServiceImpl implements CSVService {
-    private static final Logger logger = LogManager.getLogger(CSVServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String CSV_CONTENT_TYPE = "text/csv";
 

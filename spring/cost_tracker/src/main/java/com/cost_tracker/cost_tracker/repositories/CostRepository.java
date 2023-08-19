@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 // repository of type Cost
 // mapped by id of type Integer
+@Repository
 public interface CostRepository extends JpaRepository<Cost, Integer> {
     @Query(value = "SELECT * FROM cost WHERE user_id = :userId AND id = :id", nativeQuery = true)
     Optional<Cost> findCostByUserIdAndId(Integer userId, Integer id);

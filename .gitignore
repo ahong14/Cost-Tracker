@@ -1,4 +1,5 @@
 kafka**/
 /*./idea
 ./idea/*
-
+.DS_STORE
+./idea/
