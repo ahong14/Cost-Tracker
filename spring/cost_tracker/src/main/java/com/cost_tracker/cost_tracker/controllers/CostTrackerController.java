@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -116,7 +117,7 @@ public class CostTrackerController {
      * @param file, MultipartFile, batch csv file of costs
      * @return
      */
-    @PostMapping(path = "batchCost")
+    @PostMapping(path = "batchCost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity createBatchCost(@RequestParam MultipartFile file) throws IOException {
         logger.info("file: " + file.getOriginalFilename());
         logger.info("file size: " + file.getSize());

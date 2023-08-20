@@ -33,6 +33,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
   cost_tracker:
     image: cost_tracker:0.0.1-SNAPSHOT
+    platform: linux/amd64
     environment:
       DB_HOST: 'mysql'
       KAFKA_HOST: 'kafka'
@@ -41,3 +42,15 @@ services:
       - kafka
     ports:
       - 8080:8080
+  cost_tracker_consumer:
+    image: cost_consumer_service:0.0.1-SNAPSHOT
+    platform: linux/amd64
+    environment:
+      DB_HOST: 'mysql'
+      KAFKA_HOST: 'kafka'
+    depends_on:
+      - mysql
+      - kafka
+      - cost_tracker
+    ports:
+      - 8081:8081
